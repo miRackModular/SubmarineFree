@@ -56,19 +56,19 @@ void LightButton::draw(NVGcontext *vg) {
 		nvgFill(vg);
 	}
 
-	// Halo
-	if (!gScheme.isFlat) {
-		float lradius = mm2px(0.544);
-		float oradius = lradius + 15.0;
-		nvgBeginPath(vg);
-		nvgRect(vg, box.size.x / 2.0 - oradius, box.size.y * 0.375f - oradius, 2 * oradius, 2 * oradius);
-		NVGpaint paint;
-		NVGcolor icol = colorMult(lcol, 0.08);
-		NVGcolor ocol = nvgRGB(0, 0, 0);
-		paint = nvgRadialGradient(vg, box.size.x / 2.0, box.size.y * 0.375f, lradius, oradius, icol, ocol);
-		nvgFillPaint(vg, paint);
-		nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
-		nvgFill(vg);	
-	}
+	// // Halo
+	// if (!gScheme.isFlat) {
+	// 	float lradius = mm2px(0.544);
+	// 	float oradius = lradius + 15.0;
+	// 	nvgBeginPath(vg);
+	// 	nvgRect(vg, box.size.x / 2.0 - oradius, box.size.y * 0.375f - oradius, 2 * oradius, 2 * oradius);
+	// 	NVGpaint paint;
+	// 	NVGcolor icol = colorMult(lcol, 0.08);
+	// 	NVGcolor ocol = nvgRGB(0, 0, 0);
+	// 	paint = nvgRadialGradient(vg, box.size.x / 2.0, box.size.y * 0.375f, lradius, oradius, icol, ocol);
+	// 	nvgFillPaint(vg, paint);
+	// 	nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
+	// 	nvgFill(vg);	
+	// }
 	nvgRestore(vg);
 }

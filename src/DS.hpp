@@ -1,8 +1,8 @@
 #include "SubmarineFree.hpp"
 
 struct DS_Module : Module {
-	float voltage0 = 0.0f;
-	float voltage1 = 10.0f;
+	float voltage0 = 0.f;
+	float voltage1 = 5.f;
 	float midpoint();
 	float output(int);
 	DS_Module(int p, int i, int o, int l) : Module(p, i, o, l) {}

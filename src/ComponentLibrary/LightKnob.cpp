@@ -84,17 +84,17 @@ void LightKnob::draw(NVGcontext *vg) {
 		nvgRestore(vg);
 	}
 	
-	// Halo
-	if (!gScheme.isFlat) {
-		nvgBeginPath(vg);
-		nvgRect(vg, cx - oradius, cy - oradius, 2 * oradius, 2 * oradius);
-		NVGpaint paint;
-		NVGcolor icol = colorMult(lcol, 0.08);
-		NVGcolor ocol = nvgRGB(0, 0, 0);
-		paint = nvgRadialGradient(vg, cx, cy, lradius, oradius, icol, ocol);
-		nvgFillPaint(vg, paint);
-		nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
-		nvgFill(vg);	
-	}
+	// // Halo
+	// if (!gScheme.isFlat) {
+	// 	nvgBeginPath(vg);
+	// 	nvgRect(vg, cx - oradius, cy - oradius, 2 * oradius, 2 * oradius);
+	// 	NVGpaint paint;
+	// 	NVGcolor icol = colorMult(lcol, 0.08);
+	// 	NVGcolor ocol = nvgRGB(0, 0, 0);
+	// 	paint = nvgRadialGradient(vg, cx, cy, lradius, oradius, icol, ocol);
+	// 	nvgFillPaint(vg, paint);
+	// 	nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
+	// 	nvgFill(vg);	
+	// }
 	nvgRestore(vg);	
 }

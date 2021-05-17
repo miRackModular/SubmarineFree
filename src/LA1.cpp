@@ -57,9 +57,18 @@ struct LA_108 : DS_Module {
 
 	DS_Schmitt trigger;
 
-	int resetRunMode = 0;
+	// int resetRunMode = 0;
 
-	LA_108() : DS_Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	LA_108() : DS_Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		voltage0 = -10.f;
+		voltage1 = 10.f;
+	}
+
+	void onReset() {
+		voltage0 = -10.0f;
+		voltage1 = 10.0f;
+	}
+
 	void step() override;
 	void startFrame(void);
 };
@@ -129,7 +138,7 @@ void LA_108::step() {
 
 		if (params[PARAM_RUN].value < 0.5f) { // Continuous run mode
 			params[PARAM_RESET].value = 0.0f;
-			resetRunMode = 1;
+			// resetRunMode = 1;
 			// Reset if triggered
 			float holdTime = 0.1f;
 			if (triggered) {
@@ -148,7 +157,7 @@ void LA_108::step() {
 				if (triggered) {
 					startFrame();
 					params[PARAM_RESET].value = 0.0f;
-					resetRunMode = 1;
+					// resetRunMode = 1;
 					return;
 				}
 			}
@@ -181,7 +190,7 @@ struct LA_Display : TransparentWidget {
 		nvgLineCap(vg, NVG_ROUND);
 		nvgMiterLimit(vg, 2.0f);
 		nvgStrokeWidth(vg, 1.5f);
-		nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
+		// nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
 		nvgStroke(vg);
 		nvgResetScissor(vg);
 		nvgRestore(vg);	
@@ -340,18 +349,18 @@ struct LA108 : SchemeModuleWidget {
 			dsMod->appendContextMenu(menu);
 		}
 	}
-	void step() override {
-		LA_108 *laMod = dynamic_cast<LA_108 *>(module);
-		if (laMod) {
-			if (laMod->resetRunMode) {
-				laMod->resetRunMode = 0;
-				resetButton->setValue(0.0f);
-			}
-		}
-		ModuleWidget::step();
-	}
+	// void step() override {
+	// 	LA_108 *laMod = dynamic_cast<LA_108 *>(module);
+	// 	if (laMod) {
+	// 		if (laMod->resetRunMode) {
+	// 			laMod->resetRunMode = 0;
+	// 			resetButton->setValue(0.0f);
+	// 		}
+	// 	}
+	// 	ModuleWidget::step();
+	// }
 	void render(NVGcontext *vg, SchemeCanvasWidget *canvas) override {
-		drawBase(vg, "LA_108");
+		drawBase(vg, "LA-108");
 		
 		//Scope
 		nvgFillColor(vg, nvgRGB(0x00, 0x00, 0x00));
@@ -403,4 +412,4 @@ struct LA108 : SchemeModuleWidget {
 	}
 };
 
-Model *modelLA108 = Model::create<LA_108, LA108>("Submarine (Free)", "LA-108", "LA-108 Logic Analyser", LOGIC_TAG, VISUAL_TAG);
+Model *modelLA108 = Model::create<LA_108, LA108>("Submarine", "LA-108", "LA-108 Logic Analyser", LOGIC_TAG, VISUAL_TAG);

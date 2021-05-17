@@ -89,4 +89,4 @@ struct SubHelper {
 	}
 };
 
-#define SUBMENU "\xe2\x96\xb6"
+#define SUBMENU RIGHT_ARROW

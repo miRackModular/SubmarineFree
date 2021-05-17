@@ -15,10 +15,12 @@ LDFLAGS +=
 
 # Add .cpp and .c files to the build
 SOURCES += $(wildcard src/*.cpp) $(wildcard src/ComponentLibrary/*.cpp)
+SOURCES := $(filter-out src/torpedo.cpp,$(SOURCES))
+SOURCES := $(filter-out src/TM1.cpp,$(SOURCES))
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin is automatically added.
-DISTRIBUTABLES += $(wildcard LICENSE*) res Scala manual WK_Custom.tunings.template
+DISTRIBUTABLES += Scala
 
 # If RACK_DIR is not defined when calling the Makefile, default to two levels above
 RACK_DIR ?= ../..

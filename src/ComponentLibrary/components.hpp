@@ -87,6 +87,7 @@ struct LightButton : ToggleSwitch {
 		//maxValue = 1.0f;	
 		box.size.x = 16.0f;
 		box.size.y = 16.0f;
+		canSquash = true;
 	}
 	void draw(NVGcontext *vg) override;
 };
@@ -103,7 +104,10 @@ struct LightKnob : Knob {
 	float radius = 19.0;
 	int enabled = 1;
 	NVGcolor color = SUBLIGHTBLUE;
-	LightKnob() {smooth = false;}
+	LightKnob() {
+		smooth = false;
+		canSquash = true;
+	}
 	void draw(NVGcontext *vg) override;
 	void setEnabled(int val);
 	void setRadius(int r);
@@ -169,12 +173,12 @@ struct SubLogo : SVGWidget{};
 // Lights
 //////////////////
 
-struct BlueRedLight : GrayModuleLightWidget {
-	BlueRedLight() {
-		addBaseColor(COLOR_BLUE);
-		addBaseColor(COLOR_RED);
-	}
-};
+// struct BlueRedLight : GrayModuleLightWidget {
+// 	BlueRedLight() {
+// 		addBaseColor(COLOR_BLUE);
+// 		addBaseColor(COLOR_RED);
+// 	}
+// };
 
 //////////////////
 // Scheme
@@ -211,7 +215,7 @@ struct SchemePanel : FramebufferWidget {
 	int scheme;
 	SchemePanel();
 	SchemePanel(Vec size);
-	void step() override;
+	// void step() override;
 };
 
 struct SchemeCanvasWidget : VirtualWidget {

@@ -75,6 +75,7 @@ struct TD202 : SchemeModuleWidget {
 		textField->multiline = false;
 		textField->color = SUBLIGHTBLUE;
 		textField->bgColor = nvgRGBA(0, 0, 0, 0);
+		textField->dirty = true;
 		ModuleWidget::reset();
 	}
 	
@@ -87,4 +88,4 @@ struct TD202 : SchemeModuleWidget {
 	}
 };
 
-Model *modelTD202 = Model::create<Module, TD202>("Submarine (Free)", "TD-202", "TD-202 Vertical Text Display", VISUAL_TAG);
+Model *modelTD202 = Model::create<Module, TD202>("Submarine", "TD-202", "TD-202 Vertical Text Display", VISUAL_TAG);

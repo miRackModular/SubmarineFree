@@ -41,7 +41,7 @@ struct EO_102 : Module {
 	};
 	
 	float buffer[2][BUFFER_SIZE] = {};
-	int bufferIndex = 0;
+	int bufferIndex = BUFFER_SIZE;
 	float frameIndex = 0;
 	
 	float preBuffer[2][PRE_SIZE] = {};
@@ -52,10 +52,10 @@ struct EO_102 : Module {
 	SchmittTrigger trigger;
 	PulseGenerator triggerLight;
 	float runMode;
-	int setRun = 0;
-	int resetRun = 0;
-	int traceMode[2];
-	int traceStep;	
+	// int setRun = 0;
+	// int resetRun = 0;
+	int traceMode[2] = {0};
+	int traceStep = 1;
 
 	EO_102() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
@@ -80,7 +80,7 @@ void EO_102::step() {
 	if (runMode > 0.5f) {
 		if (params[PARAM_RUNMODE].value < 0.5f) {
 			params[PARAM_RUN].value = 1.0f;
-			setRun = 1;
+			// setRun = 1;
 		}
 	}
 	runMode = params[PARAM_RUNMODE].value;
@@ -153,14 +153,14 @@ void EO_102::step() {
 		frameIndex++;
 
 		float gate = inputs[triggerInput].value;
-		int triggered = trigger.process(rescale(gate, params[PARAM_TRIGGER].value - 0.1f, params[PARAM_TRIGGER].value, 0.0f, 1.0f)); 
+		int triggered = trigger.process(rescale(gate, params[PARAM_TRIGGER].value, params[PARAM_TRIGGER].value+0.0001, 0.0f, 1.0f)); 
 
 		if (params[PARAM_RUN].value > 0.5f) {
 			if (triggered) {
 				startFrame();
 				if (runMode > 0.5f) {// Continuous run mode
 					params[PARAM_RUN].value = 0;
-					resetRun = 1;
+					// resetRun = 1;
 				}
 				return;
 			}
@@ -182,15 +182,15 @@ struct EO_Display : TransparentWidget {
 		for (int i = 0; i < BUFFER_SIZE; i++) {
 			float x, y;
 			x = (float)i / (BUFFER_SIZE - 1) * b.size.x;
-			y = ((values[i] * scaling + offset ) / 20.0f - 0.8f) * -b.size.y;
+			y = ((values[i] * scaling + offset ) / 20.0f - 0.5f) * -b.size.y;
 			if (i == 0)
 				nvgMoveTo(vg, x, y);
 			else
 				nvgLineTo(vg, x, y);
 		} 
 		if (mode) {
-			nvgLineTo(vg, b.size.x, (offset / 20.0f - 0.8f) * -b.size.y);
-			nvgLineTo(vg, 0, (offset / 20.0f - 0.8f) * -b.size.y);
+			nvgLineTo(vg, b.size.x, (offset / 20.0f - 0.5f) * -b.size.y);
+			nvgLineTo(vg, 0, (offset / 20.0f - 0.5f) * -b.size.y);
 			nvgClosePath(vg);
 			nvgFillColor(vg, col);
 			nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
@@ -242,7 +242,7 @@ struct EO_Display : TransparentWidget {
 	void drawTrigger(NVGcontext *vg, float value, float offset, float scale) {
 		Rect b = Rect(Vec(0, 0), box.size);
 		float scaling = powf(2.0f, scale);
-		float y = ((value * scaling + offset ) / 20.0f - 0.8f) * -b.size.y;
+		float y = ((value * scaling + offset ) / 20.0f - 0.5f) * -b.size.y;
 		if (y < 0) return;
 		if (y > b.size.y) return;
 		nvgScissor(vg, b.pos.x, b.pos.y, b.size.x, b.size.y);
@@ -371,7 +371,7 @@ struct EO_Measure_Vert : EO_Measure {
 		if (!module) {
 			return; 
 		}
-		float height = ((module->params[EO_102::PARAM_INDEX_3].value - 0.2f) * 20.0f - module->params[EO_102::PARAM_OFFSET_1 + index].value) / powf(2, module->params[EO_102::PARAM_SCALE_1 + index].value);
+		float height = ((module->params[EO_102::PARAM_INDEX_3].value - 0.5f) * 20.0f - module->params[EO_102::PARAM_OFFSET_1 + index].value) / powf(2, module->params[EO_102::PARAM_SCALE_1 + index].value);
 		
 		float ah = fabs(height);
 		if (ah < 0.00000995f)
@@ -453,22 +453,22 @@ struct EO102 : SchemeModuleWidget {
 
 		addParam(createParamCentered<MedKnob<LightKnob>>(Vec(290, 320), module, EO_102::PARAM_INDEX_1, 0.0f, 1.0f, 0.0f));
 		addParam(createParamCentered<MedKnob<LightKnob>>(Vec(332, 320), module, EO_102::PARAM_INDEX_2, 0.0f, 1.0f, 1.0f));
-		addParam(createParamCentered<MedKnob<LightKnob>>(Vec(376, 320), module, EO_102::PARAM_INDEX_3, 0.0f, 1.0f, 0.2f));
+		addParam(createParamCentered<MedKnob<LightKnob>>(Vec(376, 320), module, EO_102::PARAM_INDEX_3, 0.0f, 1.0f, 0.5f));
 	}
-	void step() override {
-		EO_102 *eoMod = dynamic_cast<EO_102 *>(module);
-		if (eoMod) {
-			if (eoMod->setRun) {
-				eoMod->setRun = 0;
-				paramRun->setValue(1.0f);
-			}
-			if (eoMod->resetRun) {
-				eoMod->resetRun = 0;
-				paramRun->setValue(0.0f);
-			}
-		}
-		ModuleWidget::step();
-	}
+	// void step() override {
+	// 	EO_102 *eoMod = dynamic_cast<EO_102 *>(module);
+	// 	if (eoMod) {
+	// 		if (eoMod->setRun) {
+	// 			eoMod->setRun = 0;
+	// 			paramRun->setValue(1.0f);
+	// 		}
+	// 		if (eoMod->resetRun) {
+	// 			eoMod->resetRun = 0;
+	// 			paramRun->setValue(0.0f);
+	// 		}
+	// 	}
+	// 	ModuleWidget::step();
+	// }
 	void render(NVGcontext *vg, SchemeCanvasWidget *canvas) override {
 		drawBase(vg, "EO-102");
 
@@ -517,4 +517,4 @@ struct EO102 : SchemeModuleWidget {
 	}
 };
 
-Model *modelEO102 = Model::create<EO_102, EO102>("Submarine (Free)", "EO-102", "EO-102 Envelope Oscilloscope", VISUAL_TAG);
+Model *modelEO102 = Model::create<EO_102, EO102>("Submarine", "EO-102", "EO-102 Envelope Oscilloscope", VISUAL_TAG);

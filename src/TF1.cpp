@@ -1,7 +1,7 @@
 //SubTag W6
 
 #include "SubmarineFree.hpp"
-#include "torpedo.hpp"
+// #include "torpedo.hpp"
 
 struct TF_101 : Module  {
 	enum ParamIds {
@@ -40,13 +40,13 @@ struct TF_101 : Module  {
 
 	float prevValues[7];
 	int isDirty = false;
-	Torpedo::PatchOutputPort outPort = Torpedo::PatchOutputPort(this, OUTPUT_TOR);	
+	// Torpedo::PatchOutputPort outPort = Torpedo::PatchOutputPort(this, OUTPUT_TOR);	
 	TF_101() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		prevValues[0] = 0.1569f;
 		prevValues[1] = 0.6902f;
 		prevValues[2] = 0.9529f;
 		prevValues[6] = 12.0f;
-		outPort.size(1);
+		// outPort.size(1);
 	}
 	void step() override;
 	std::string encodeColor(float r, float g, float b) {
@@ -82,9 +82,9 @@ void TF_101::step() {
 		json_object_set_new(rootJ, "fg", json_string(encodeColor(prevValues[0], prevValues[1], prevValues[2]).c_str()));
 		json_object_set_new(rootJ, "bg", json_string(encodeColor(prevValues[3], prevValues[4], prevValues[5]).c_str()));
 		json_object_set_new(rootJ, "size", json_real(prevValues[6]));
-		outPort.send("SubmarineFree", "TDNotesColor", rootJ);
+		// outPort.send("SubmarineFree", "TDNotesColor", rootJ);
 	}
-	outPort.process();
+	// outPort.process();
 }
 
 struct WhiteLight : GrayModuleLightWidget {
@@ -149,4 +149,4 @@ struct TF101 : SchemeModuleWidget {
 	}
 };
 
-Model *modelTF101 = Model::create<TF_101, TF101>("Submarine (Free)", "TF-101", "TF-101 Text Display Format Control", VISUAL_TAG);
+Model *modelTF101 = Model::create<TF_101, TF101>("Submarine", "TF-101", "TF-101 Text Display Format Control", VISUAL_TAG);

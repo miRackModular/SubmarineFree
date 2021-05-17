@@ -36,18 +36,18 @@
 		nvgFill(vg);
 	}
 	
-	// Halo
-	if (!gScheme.isFlat) {
-		nvgBeginPath(vg);
-		nvgRect(vg, box.size.x / 2 - 20, offset - 4, 40, 20);
-		NVGpaint paint;
-		NVGcolor icol = colorMult(lcol, 0.08);
-		NVGcolor ocol = nvgRGB(0, 0, 0);
-		paint = nvgRadialGradient(vg, box.size.x / 2, offset + 6, 4, 20, icol, ocol);
-		nvgFillPaint(vg, paint);
-		nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
-		nvgFill(vg);	
-	}
+	// // Halo
+	// if (!gScheme.isFlat) {
+	// 	nvgBeginPath(vg);
+	// 	nvgRect(vg, box.size.x / 2 - 20, offset - 4, 40, 20);
+	// 	NVGpaint paint;
+	// 	NVGcolor icol = colorMult(lcol, 0.08);
+	// 	NVGcolor ocol = nvgRGB(0, 0, 0);
+	// 	paint = nvgRadialGradient(vg, box.size.x / 2, offset + 6, 4, 20, icol, ocol);
+	// 	nvgFillPaint(vg, paint);
+	// 	nvgGlobalCompositeOperation(vg, NVG_LIGHTER);
+	// 	nvgFill(vg);	
+	// }
 	}
 
 	void LightSlider::onDragMove(EventDragMove &e) {

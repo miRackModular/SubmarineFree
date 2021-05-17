@@ -109,18 +109,18 @@ SchemePanel::SchemePanel(Vec size) {
 	box.size = size;
 }
 
-void SchemePanel::step() {
-	if (isFlat != gScheme.isFlat) {
-		dirty = true;
-	}
-	isFlat = gScheme.isFlat;
-	if (scheme != gScheme.scheme) {
-		dirty = true;
-	}
-	scheme = gScheme.scheme;
-	oversample = 2.0;
-	FramebufferWidget::step();
-}
+// void SchemePanel::step() {
+// 	if (isFlat != gScheme.isFlat) {
+// 		dirty = true;
+// 	}
+// 	isFlat = gScheme.isFlat;
+// 	if (scheme != gScheme.scheme) {
+// 		dirty = true;
+// 	}
+// 	scheme = gScheme.scheme;
+// 	// oversample = 2.0;
+// 	FramebufferWidget::step();
+// }
 
 void SchemeCanvasWidget::draw(NVGcontext *vg) {
 	SchemeModuleWidget *smw = dynamic_cast<SchemeModuleWidget *>(parent->parent);
@@ -302,8 +302,8 @@ void SchemeModuleWidget::render(NVGcontext *vg, SchemeCanvasWidget *canvas) {
 }
 
 void SchemeModuleWidget::appendContextMenu(Menu * menu) {
-	menu->addChild(MenuEntry::create());
-	SchemeModuleWidgetVisualMenuItem *m = MenuItem::create<SchemeModuleWidgetVisualMenuItem>("Visuals");
-	m->rightText = SUBMENU;
-	menu->addChild(m);
+	// menu->addChild(MenuEntry::create());
+	// SchemeModuleWidgetVisualMenuItem *m = MenuItem::create<SchemeModuleWidgetVisualMenuItem>("Visuals");
+	// m->rightText = SUBMENU;
+	// menu->addChild(m);
 }

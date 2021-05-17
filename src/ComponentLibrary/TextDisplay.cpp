@@ -11,6 +11,7 @@ Menu *SubTextForegroundParent::createChildMenu()  {
 
 void SubTextForegroundMenu::onAction(EventAction &e) {
 	subText->color = color;
+	subText->dirty = true;
 }
 
 void SubTextForegroundMenu::step() {
@@ -26,6 +27,7 @@ Menu *SubTextBackgroundParent::createChildMenu() {
 
 void SubTextBackgroundMenu::onAction(EventAction &e) {
 	subText->bgColor = color;
+	subText->dirty = true;
 }
 
 void SubTextBackgroundMenu::step() {
