@@ -6,7 +6,7 @@
 
 #define BUFFER_SIZE 512
 
-struct LA_108 : DS_Module {
+struct LA_108 : DS_ModuleV1 {
 	enum ParamIds {
 		PARAM_TRIGGER,
 		PARAM_EDGE,
@@ -55,13 +55,31 @@ struct LA_108 : DS_Module {
 	float preFrameIndex = 0;
 	int preCount = 0;
 
+	bool spreadPolyInputs = false;
+	bool channelActive[8];
+
 	DS_Schmitt trigger;
 
 	// int resetRunMode = 0;
 
-	LA_108() : DS_Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	LA_108() {
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		voltage0 = -10.f;
 		voltage1 = 10.f;
+	}
+
+	json_t *toJson(void) override {
+		json_t *rootJ = DS_ModuleV1::toJson();
+		json_object_set_new(rootJ, "spreadPolyInputs", json_boolean(spreadPolyInputs));
+		return rootJ;
+	}
+
+	void fromJson(json_t *rootJ) override {
+		DS_ModuleV1::fromJson(rootJ);
+
+		json_t *spreadPolyInputsJ = json_object_get(rootJ, "spreadPolyInputs");
+		if (spreadPolyInputsJ)
+			spreadPolyInputs = json_boolean_value(spreadPolyInputsJ);
 	}
 
 	void onReset() {
@@ -95,6 +113,28 @@ void LA_108::step() {
 	// Compute time
 	float deltaTime = powf(2.0f, params[PARAM_TIME].value);
 	int frameCount = (int)ceilf(deltaTime * engineGetSampleRate());
+
+	if (spreadPolyInputs)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			InputV1 &in = inputs[INPUT_1 + i];
+			if (in.active)
+			{
+				channelActive[i] = true;
+				if (in.channels > 1)
+				{
+					for (int k = 1; k < in.channels && i < 7 && !inputs[INPUT_1 + i + 1].active; k++, i++)
+					{
+						inputs[INPUT_1 + i + 1].value = in.values[k];
+						channelActive[i + 1] = true;
+					}
+				}
+			}
+			else
+				channelActive[i] = false;
+		}
+	}
 	
 	// Add frame to preBuffer
 	if (++preFrameIndex >= frameCount) {
@@ -122,7 +162,7 @@ void LA_108::step() {
 	// Are we waiting on the next trigger?
 	if (bufferIndex >= BUFFER_SIZE) {
 		// Trigger immediately if nothing connected to trigger input
-		if (!inputs[triggerInput].active) {
+		if (!inputs[triggerInput].active && !(spreadPolyInputs && channelActive[triggerInput])) {
 			startFrame();
 			return;
 		}
@@ -252,7 +292,8 @@ struct LA_Display : TransparentWidget {
 			return;
 		}
 		for (int i = 0; i < 8; i++) {
-			if (module->inputs[LA_108::INPUT_1 + i].active) {
+			if ((module->spreadPolyInputs && module->channelActive[i]) ||
+				module->inputs[LA_108::INPUT_1 + i].active) {
 				drawTrace(vg, module->buffer[i], 32.5f + 35 * i); 
 			}
 		}
@@ -302,6 +343,13 @@ struct LA_Measure : TransparentWidget {
 	}
 };
 
+struct SpreadPolyInputsItem : MenuItem {
+    LA_108 *module;
+
+    void onAction(EventAction &e) override {
+        module->spreadPolyInputs = !module->spreadPolyInputs;
+    }
+};
 
 struct LA108 : SchemeModuleWidget {
 	LightButton *resetButton;
@@ -344,9 +392,16 @@ struct LA108 : SchemeModuleWidget {
 	}
 	void appendContextMenu(Menu *menu) override {
 		SchemeModuleWidget::appendContextMenu(menu);
-		DS_Module *dsMod = dynamic_cast<DS_Module *>(module);
+		DS_ModuleV1 *dsMod = dynamic_cast<DS_ModuleV1 *>(module);
 		if (dsMod) {
 			dsMod->appendContextMenu(menu);
+		}
+		{
+			SpreadPolyInputsItem *item = new SpreadPolyInputsItem();
+			item->text = "Spread Poly Signals";
+			item->rightText = CHECKMARK(static_cast<LA_108*>(module)->spreadPolyInputs);
+			item->module = static_cast<LA_108*>(module);
+			menu->addChild(item);
 		}
 	}
 	// void step() override {
@@ -412,4 +467,4 @@ struct LA108 : SchemeModuleWidget {
 	}
 };
 
-Model *modelLA108 = Model::create<LA_108, LA108>("Submarine", "LA-108", "LA-108 Logic Analyser", LOGIC_TAG, VISUAL_TAG);
+Model *modelLA108 = Model::create<LA_108, LA108>("Submarine", "LA-108", "LA-108 Logic Analyser", LOGIC_TAG, VISUAL_TAG, POLYPHONIC_TAG);

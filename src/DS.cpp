@@ -1,17 +1,20 @@
 #include "DS.hpp"
 
-float DS_Module::midpoint() {
+template<typename T>
+float TDS_Module<T>::midpoint() {
 	return (voltage0 * 0.5f + voltage1 * 0.5f);
 }
 
-json_t *DS_Module::toJson() {
+template<typename T>
+json_t *TDS_Module<T>::toJson() {
 	json_t *rootJ = json_object();
 	json_object_set_new(rootJ, "voltage0", json_real(voltage0));
 	json_object_set_new(rootJ, "voltage1", json_real(voltage1));
 	return rootJ;
 }
 
-void DS_Module::fromJson(json_t *rootJ) {
+template<typename T>
+void TDS_Module<T>::fromJson(json_t *rootJ) {
 	json_t *j0 = json_object_get(rootJ, "voltage0");
 	if (j0)
 		voltage0 = json_number_value(j0);
@@ -20,40 +23,43 @@ void DS_Module::fromJson(json_t *rootJ) {
 		voltage1 = json_number_value(j1);
 }
 
-void DS_Module::onReset() {
+template<typename T>
+void TDS_Module<T>::onReset() {
 	voltage0 = 0.0f;
 	voltage1 = 5.0f;
 }
 
-float DS_Module::output(int state) {
+template<typename T>
+float TDS_Module<T>::output(int state) {
 	return state?voltage1:voltage0;
 } 
 
-struct DS_ParentMenuItem : MenuItem {
-	DS_Module *module;
+template<typename T>
+struct TDS_ParentMenuItem : MenuItem {
+	TDS_Module<T> *module;
 	Menu *createChildMenu() override {
 		Menu *menu = new Menu();
-		DS_MenuItem *m = MenuItem::create<DS_MenuItem>("0V - 1V");
+		TDS_MenuItem<T> *m = MenuItem::create<TDS_MenuItem<T>>("0V - 1V");
 		m->module = module;
 		m->vl = 0.0f;
 		m->vh = 1.0f;
 		menu->addChild(m);
-		m = MenuItem::create<DS_MenuItem>("0V - 5V");
+		m = MenuItem::create<TDS_MenuItem<T>>("0V - 5V");
 		m->module = module;
 		m->vl = 0.0f;
 		m->vh = 5.0f;
 		menu->addChild(m);
-		m = MenuItem::create<DS_MenuItem>("0V - 10V");
+		m = MenuItem::create<TDS_MenuItem<T>>("0V - 10V");
 		m->module = module;
 		m->vl = 0.0f;
 		m->vh = 10.0f;
 		menu->addChild(m);
-		m = MenuItem::create<DS_MenuItem>("-5V - 5V");
+		m = MenuItem::create<TDS_MenuItem<T>>("-5V - 5V");
 		m->module = module;
 		m->vl = -5.0f;
 		m->vh = 5.0f;
 		menu->addChild(m);
-		m = MenuItem::create<DS_MenuItem>("-10V - 10V");
+		m = MenuItem::create<TDS_MenuItem<T>>("-10V - 10V");
 		m->module = module;
 		m->vl = -10.0f;
 		m->vh = 10.0f;
@@ -62,20 +68,23 @@ struct DS_ParentMenuItem : MenuItem {
 	}
 };
 
-void DS_Module::appendContextMenu(Menu *menu) {
+template<typename T>
+void TDS_Module<T>::appendContextMenu(Menu *menu) {
 	menu->addChild(new MenuSeparator());
-	DS_ParentMenuItem *m = MenuItem::create<DS_ParentMenuItem>("Digital Voltage Range");
+	TDS_ParentMenuItem<T> *m = MenuItem::create<TDS_ParentMenuItem<T>>("Digital Voltage Range");
 	m->module = this;
 	m->rightText = SUBMENU;
 	menu->addChild(m);
 }
 
-void DS_MenuItem::onAction(EventAction &e) {
+template<typename T>
+void TDS_MenuItem<T>::onAction(EventAction &e) {
 	module->voltage0 = vl;
 	module->voltage1 = vh;
 }
 
-void DS_MenuItem::step() {
+template<typename T>
+void TDS_MenuItem<T>::step() {
 	rightText = CHECKMARK((module->voltage0 == vl) && (module->voltage1 == vh));
 	MenuItem::step();
 }
@@ -115,6 +124,9 @@ int DS_Schmitt::state(float vl, float vh, float v) {
 int DS_Schmitt::state(DS_Module *module, float v) {
 	return state(low(module->voltage0, module->voltage1), high(module->voltage0, module->voltage1), v);
 }
+int DS_Schmitt::state(DS_ModuleV1 *module, float v) {
+	return state(low(module->voltage0, module->voltage1), high(module->voltage0, module->voltage1), v);
+}
 
 int DS_Schmitt::edge(float vl, float vh, float v) {
 	int old = _state;
@@ -122,6 +134,10 @@ int DS_Schmitt::edge(float vl, float vh, float v) {
 }
 	
 int DS_Schmitt::edge(DS_Module *module, float v) {
+	int old = _state;
+	return (state(module, v) != old);
+}
+int DS_Schmitt::edge(DS_ModuleV1 *module, float v) {
 	int old = _state;
 	return (state(module, v) != old);
 }
@@ -133,6 +149,9 @@ int DS_Schmitt::edge(float vl, float vh, float v, int falling) {
 int DS_Schmitt::edge(DS_Module *module, float v, int falling) {
 	return falling?fedge(module, v):redge(module, v);
 }
+int DS_Schmitt::edge(DS_ModuleV1 *module, float v, int falling) {
+	return falling?fedge(module, v):redge(module, v);
+}
 
 int DS_Schmitt::redge(float vl, float vh, float v) {
 	int old = _state;
@@ -140,6 +159,10 @@ int DS_Schmitt::redge(float vl, float vh, float v) {
 }
 
 int DS_Schmitt::redge(DS_Module *module, float v) {
+	int old = _state;
+	return (state(module, v) && !old);
+}
+int DS_Schmitt::redge(DS_ModuleV1 *module, float v) {
 	int old = _state;
 	return (state(module, v) && !old);
 }
@@ -153,3 +176,10 @@ int DS_Schmitt::fedge(DS_Module *module, float v) {
 	int old = _state;
 	return (!state(module, v) && old);
 }
+int DS_Schmitt::fedge(DS_ModuleV1 *module, float v) {
+	int old = _state;
+	return (!state(module, v) && old);
+}
+
+template struct TDS_Module<Module>;
+template struct TDS_Module<ModuleV1>;
